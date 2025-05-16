@@ -58,7 +58,8 @@ const LoginPage = () => {
         <div className="flex flex-col items-center justify-center">
           <div className="mb-8 text-center">
             <div className="flex items-center justify-center mb-4">
-              <MapPin className="h-12 w-12 text-primary" />
+            <img src="/log1.jpg" alt="GeoExpOre" />
+
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">GeoExpOre</h1>
             <p className="text-gray-600">Geological Exploration Dashboard</p>

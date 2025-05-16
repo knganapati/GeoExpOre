@@ -36,6 +36,20 @@ const phaseOneSchema = z.object({
   mailDate: z.string().optional(),
   inPrincipleDate: z.string().optional(),
   meetingRemarks: z.string().optional(),
+
+    // Progress tracking
+    geologicalAreaCovered: z.string().min(0),
+    geologicalAreaToBeCovered: z.string().min(0),
+    geochemicalAreaCovered: z.string().min(0),
+    geochemicalAreaToBeCovered: z.string().min(0),
+    geophysicalAreaCovered: z.string().min(0),
+    geophysicalAreaToBeCovered: z.string().min(0),
+    samplesCollected: z.string().min(0),
+    samplesPending: z.string().min(0),
+    trenchingConducted: z.string().min(0),
+    trenchingPending: z.string().min(0),
+    drillingAchieved: z.string().min(0),
+    drillingPending: z.string().min(0),
 });
 
 type PhaseOneFormValues = z.infer<typeof phaseOneSchema>;
@@ -45,6 +59,10 @@ const PhaseOnePage = () => {
   const [referenceFile, setReferenceFile] = useState<File | null>(null);
   const [toposheetMapFile, setToposheetMapFile] = useState<File | null>(null);
   const [geologicalMapFile, setGeologicalMapFile] = useState<File | null>(null);
+  const [regionalGeologicalMapFile, setRegionalGeologicalMapFile] = useState<File | null>(null);
+  const [tectonicMapFile, setTectonicMapFile] = useState<File | null>(null);
+  const [aeroMagneticMapFile, setAeroMagneticMapFile] = useState<File | null>(null);
+  const [remoteSensingMapFile, setRemoteSensingMapFile] = useState<File | null>(null);
   const [sampleLocationsMapFile, setSampleLocationsMapFile] = useState<File | null>(null);
   const [dueDiligenceFile, setDueDiligenceFile] = useState<File | null>(null);
   const [mailAttachmentFile, setMailAttachmentFile] = useState<File | null>(null);
@@ -87,6 +105,20 @@ const PhaseOnePage = () => {
       mailDate: formatDate(new Date()),
       inPrincipleDate: '',
       meetingRemarks: '',
+
+      // Initialize progress tracking fields
+      geologicalAreaCovered: '0',
+      geologicalAreaToBeCovered: '0',
+      geochemicalAreaCovered: '0',
+      geochemicalAreaToBeCovered: '0',
+      geophysicalAreaCovered: '0',
+      geophysicalAreaToBeCovered: '0',
+      samplesCollected: '0',
+      samplesPending: '0',
+      trenchingConducted: '0',
+      trenchingPending: '0',
+      drillingAchieved: '0',
+      drillingPending: '0',
     },
   });
 
@@ -102,40 +134,76 @@ const PhaseOnePage = () => {
   const isForestCoverValid = Math.abs(totalForestCover - 100) < 0.1;
 
   // Add a new coordinate
+  // const addCoordinate = () => {
+  //   if (!newCoordName || !newCoordLat || !newCoordLng) {
+  //     toast.error('Please fill in all coordinate fields');
+  //     return;
+  //   }
+
+  //   const lat = parseFloat(newCoordLat);
+  //   const lng = parseFloat(newCoordLng);
+    
+  //   if (isNaN(lat) || isNaN(lng)) {
+  //     toast.error('Latitude and longitude must be valid numbers');
+  //     return;
+  //   }
+
+  //   setCoordinates([
+  //     ...coordinates,
+  //     { name: newCoordName, latitude: lat, longitude: lng },
+  //   ]);
+    
+  //   // Reset input fields
+  //   setNewCoordName(String.fromCharCode(newCoordName.charCodeAt(0) + 1));
+  //   setNewCoordLat('');
+  //   setNewCoordLng('');
+    
+  //   toast.success('Coordinate added successfully');
+  // };
   const addCoordinate = () => {
     if (!newCoordName || !newCoordLat || !newCoordLng) {
       toast.error('Please fill in all coordinate fields');
       return;
     }
-
+  
     const lat = parseFloat(newCoordLat);
     const lng = parseFloat(newCoordLng);
-    
+  
     if (isNaN(lat) || isNaN(lng)) {
       toast.error('Latitude and longitude must be valid numbers');
       return;
     }
-
+  
     setCoordinates([
       ...coordinates,
       { name: newCoordName, latitude: lat, longitude: lng },
     ]);
-    
-    // Reset input fields
-    setNewCoordName(String.fromCharCode(newCoordName.charCodeAt(0) + 1));
+  
+    // Automatically increment next coordinate name (A → B → C ...)
+    const nextChar = String.fromCharCode(newCoordName.charCodeAt(0) + 1);
+    setNewCoordName(nextChar);
     setNewCoordLat('');
     setNewCoordLng('');
-    
+  
     toast.success('Coordinate added successfully');
   };
+  
 
   // Remove a coordinate
+  // const removeCoordinate = (index: number) => {
+  //   const newCoordinates = [...coordinates];
+  //   newCoordinates.splice(index, 1);
+  //   setCoordinates(newCoordinates);
+  //   toast.info('Coordinate removed');
+  // };
   const removeCoordinate = (index: number) => {
-    const newCoordinates = [...coordinates];
-    newCoordinates.splice(index, 1);
-    setCoordinates(newCoordinates);
-    toast.info('Coordinate removed');
+    const updatedCoordinates = [...coordinates];
+    updatedCoordinates.splice(index, 1);
+    setCoordinates(updatedCoordinates);
+    toast.success('Coordinate removed');
   };
+  
+
 
   // Handle form submission
   const onSubmit = async (data: PhaseOneFormValues) => {
@@ -225,6 +293,12 @@ const PhaseOnePage = () => {
                   error={errors.projectTitle?.message}
                 />
                 <InputField
+                  label="Category"
+                  placeholder="Mention Category as G4 OR G3"
+                  {...register('projectTitle')}
+                  error={errors.projectTitle?.message}
+                />
+                <InputField
                   label="Commodity"
                   placeholder="Enter commodity"
                   {...register('commodity')}
@@ -246,6 +320,119 @@ const PhaseOnePage = () => {
               </div>
             </CardContent>
           </Card>
+          
+          {/* Newly added ta table */}
+          {/* Progress Tracking */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Progress Tracking</CardTitle>
+              <CardDescription>Track progress of various exploration activities</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {/* Area Coverage */}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 mb-4">Area Coverage Status</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-4">
+                      <h5 className="text-sm font-medium text-gray-700">Geological</h5>
+                      <InputField
+                        label="Area Covered"
+                        type="number"
+                        {...register('geologicalAreaCovered')}
+                        error={errors.geologicalAreaCovered?.message}
+                      />
+                      <InputField
+                        label="To be Covered"
+                        type="number"
+                        {...register('geologicalAreaToBeCovered')}
+                        error={errors.geologicalAreaToBeCovered?.message}
+                      />
+                    </div>
+                    <div className="space-y-4">
+                      <h5 className="text-sm font-medium text-gray-700">Geochemical</h5>
+                      <InputField
+                        label="Area Covered"
+                        type="number"
+                        {...register('geochemicalAreaCovered')}
+                        error={errors.geochemicalAreaCovered?.message}
+                      />
+                      <InputField
+                        label="To be Covered"
+                        type="number"
+                        {...register('geochemicalAreaToBeCovered')}
+                        error={errors.geochemicalAreaToBeCovered?.message}
+                      />
+                    </div>
+                    <div className="space-y-4">
+                      <h5 className="text-sm font-medium text-gray-700">Geophysical</h5>
+                      <InputField
+                        label="Area Covered"
+                        type="number"
+                        {...register('geophysicalAreaCovered')}
+                        error={errors.geophysicalAreaCovered?.message}
+                      />
+                      <InputField
+                        label="To be Covered"
+                        type="number"
+                        {...register('geophysicalAreaToBeCovered')}
+                        error={errors.geophysicalAreaToBeCovered?.message}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sample and Activity Progress */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+                  <div className="space-y-4">
+                    <h5 className="text-sm font-medium text-gray-700">Samples</h5>
+                    <InputField
+                      label="Collected"
+                      type="number"
+                      {...register('samplesCollected')}
+                      error={errors.samplesCollected?.message}
+                    />
+                    <InputField
+                      label="Pending"
+                      type="number"
+                      {...register('samplesPending')}
+                      error={errors.samplesPending?.message}
+                    />
+                  </div>
+                  <div className="space-y-4">
+                    <h5 className="text-sm font-medium text-gray-700">Trenching</h5>
+                    <InputField
+                      label="Conducted"
+                      type="number"
+                      {...register('trenchingConducted')}
+                      error={errors.trenchingConducted?.message}
+                    />
+                    <InputField
+                      label="Pending"
+                      type="number"
+                      {...register('trenchingPending')}
+                      error={errors.trenchingPending?.message}
+                    />
+                  </div>
+                  <div className="space-y-4">
+                    <h5 className="text-sm font-medium text-gray-700">Drilling Target</h5>
+                    <InputField
+                      label="Achieved"
+                      type="number"
+                      {...register('drillingAchieved')}
+                      error={errors.drillingAchieved?.message}
+                    />
+                    <InputField
+                      label="Pending"
+                      type="number"
+                      {...register('drillingPending')}
+                      error={errors.drillingPending?.message}
+                    />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Boundary Coordinates */}
           <Card>
@@ -255,13 +442,41 @@ const PhaseOnePage = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <CoordinateMap 
+                {/* <CoordinateMap 
                   coordinates={coordinates} 
                   title="Exploration Area"
                   description="Interactive map of the exploration boundary"
+                /> */}
+                <CoordinateMap
+                  coordinates={coordinates}
+                  title="Coordinate Map"
+                  onRemoveCoordinate={removeCoordinate}
                 />
+
                 
                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      {coordinates.length > 0 && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mt-4">
+                          {coordinates.map((coord, index) => (
+                            <div key={index} className="p-3 bg-gray-100 rounded border flex justify-between items-center">
+                              <div>
+                                <div className="text-sm font-medium">{coord.name}</div>
+                                <div className="text-xs text-gray-600">
+                                  Lat: {coord.latitude.toFixed(6)}, Lng: {coord.longitude.toFixed(6)}
+                                </div>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => removeCoordinate(index)}
+                              >
+                                Remove
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
                   <h4 className="text-sm font-medium text-gray-700 mb-3">Add New Coordinate</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                     <InputField
@@ -303,6 +518,89 @@ const PhaseOnePage = () => {
               </div>
             </CardContent>
           </Card>
+
+            {/* Maps and References */}
+            <Card>
+            <CardHeader>
+              <CardTitle>Maps and References</CardTitle>
+              <CardDescription>Upload relevant maps and reference documents</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="border-b border-gray-200 pb-4">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">Reference Document</h4>
+                  <FileUpload
+                    label="Upload Reference Document"
+                    acceptedFileTypes=".pdf,.doc,.docx"
+                    onChange={setReferenceFile}
+                    value={referenceFile}
+                  />
+                </div>
+                
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">Required Maps</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-500">Regional Geological Map</p>
+                      <FileUpload
+                        acceptedFileTypes=".jpg,.jpeg,.png,.pdf"
+                        onChange={setRegionalGeologicalMapFile}
+                        value={regionalGeologicalMapFile}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-500">Tectonic Map</p>
+                      <FileUpload
+                        acceptedFileTypes=".jpg,.jpeg,.png,.pdf"
+                        onChange={setTectonicMapFile}
+                        value={tectonicMapFile}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-500">Aero Magnetic Map</p>
+                      <FileUpload
+                        acceptedFileTypes=".jpg,.jpeg,.png,.pdf"
+                        onChange={setAeroMagneticMapFile}
+                        value={aeroMagneticMapFile}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-500">Remote Sensing Map</p>
+                      <FileUpload
+                        acceptedFileTypes=".jpg,.jpeg,.png,.pdf"
+                        onChange={setRemoteSensingMapFile}
+                        value={remoteSensingMapFile}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-500">Toposheet Map</p>
+                      <FileUpload
+                        acceptedFileTypes=".jpg,.jpeg,.png,.pdf"
+                        onChange={setToposheetMapFile}
+                        value={toposheetMapFile}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-500">Geological Map</p>
+                      <FileUpload
+                        acceptedFileTypes=".jpg,.jpeg,.png,.pdf"
+                        onChange={setGeologicalMapFile}
+                        value={geologicalMapFile}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-500">Sample Locations Map</p>
+                      <FileUpload
+                        acceptedFileTypes=".jpg,.jpeg,.png,.pdf"
+                        onChange={setSampleLocationsMapFile}
+                        value={sampleLocationsMapFile}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card> 
 
           {/* Forest Cover */}
           <Card>

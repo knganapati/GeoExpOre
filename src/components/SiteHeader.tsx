@@ -4,6 +4,7 @@ import { MapPin, LogOut, Menu, X, User, Map } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Button from './ui/Button';
 
+
 const SiteHeader = () => {
   const { employee, logout } = useAuth();
   const navigate = useNavigate();
@@ -21,7 +22,9 @@ const SiteHeader = () => {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link to="/dashboard" className="flex items-center space-x-2">
-                <MapPin className="h-8 w-8 text-primary" />
+              <div className="h-9 w-auto mr-2">
+              <img src='./images/log0.jpg' />
+              </div>  
                 <span className="font-bold text-xl text-gray-900">GeoExpOre</span>
               </Link>
             </div>
@@ -44,6 +47,13 @@ const SiteHeader = () => {
               >
                 Phase 3
               </Link>
+              <Link
+              to="/dashboard/phase4"
+              className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-primary hover:text-gray-800"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Phase 4
+            </Link>
             </nav>
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">

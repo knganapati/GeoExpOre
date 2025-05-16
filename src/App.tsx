@@ -7,7 +7,7 @@ import PhaseTwoPage from './pages/PhaseTwoPage';
 import PhaseThreePage from './pages/PhaseThreePage';
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/ProtectedRoute';
-
+import PhaseFourPage from './pages/PhaseFourPage';
 function App() {
   const { isAuthenticated } = useAuth();
   
@@ -26,6 +26,7 @@ function App() {
         <Route path="phase1" element={<PhaseOnePage />} />
         <Route path="phase2" element={<PhaseTwoPage />} />
         <Route path="phase3" element={<PhaseThreePage />} />
+        <Route path="phase4" element={<PhaseFourPage />} />
       </Route>
       
       <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
